@@ -8,7 +8,7 @@ ocean  = next(a for a in fishbank.agents if isinstance(a, Ocean))
 player = next(a for a in fishbank.agents if isinstance(a, Player))
 ship   = next(a for a in fishbank.agents if isinstance(a, Ship))
 clicks = solara.reactive(0)
-
+active_ships = solara.reactive(0)
 
 def make_line_plot(history, title, y_label, color="red", name=None):
     fig = go.Figure()
@@ -27,7 +27,7 @@ def make_line_plot(history, title, y_label, color="red", name=None):
     )
     return fig
 
-active_ships = solara.reactive(0)
+
 @solara.component
 def Page():
     show_warning, set_show_warning = solara.use_state(False)
@@ -67,6 +67,8 @@ def Page():
     (ship.history_last, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Fish")
     # weitere Plots einfach hier anhängen...
     ]
+    solara.Style(".title { text-align: center; font-size: 3rem; font-weight: bold; }")
+    solara.Markdown("<h1 class='title'>Catch The Fish!</h1>")
     
     with solara.Row():
         
@@ -103,15 +105,15 @@ def Page():
                 )
                 solara.FigurePlotly(fig)
 
-    with solara.Column(style={"width": "400px"}):
-        solara.SliderInt(
-            label="Aktive Schiffe",
-            value=active_ships.value,
-            on_value=set_active_ships,
-            min=0,
-            max=len(player.fleet),
-            step=1,
-            )
+    # with solara.Column(style={"width": "400px"}):
+    #     solara.SliderInt(
+    #         label="Aktive Schiffe",
+    #         value=active_ships.value,
+    #         on_value=set_active_ships,
+    #         min=0,
+    #         max=len(player.fleet),
+    #         step=1,
+    #         )
 
     
 print(fishbank.agents)
