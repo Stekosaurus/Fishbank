@@ -21,42 +21,39 @@ class Ocean(mesa.Agent):
         """
         Funktion zum vermehren der Fische, wird in jedem Schritt aufgerufen
         """
-        self.num_of_fish = self.num_of_fish + self.r_rate * self.num_of_fish * (1 - self.num_of_fish / self.capacity) #Gleichung für Logistische Wachstum
+        self.num_of_fish = self.num_of_fish + self.r_rate * self.num_of_fish * (1 - self.num_of_fish / self.capacity) #Gleichung für logistisches Wachstum
         self.num_of_fish = round(self.num_of_fish)#"round" rundet das Ergebnis damit wir immer mit ganzen Zahlen arbeiten können.
 
         self.history.append(self.num_of_fish)#Hängt der aktualisierte Zahl der Fische an die "history" Liste an.
 
 class Ship(mesa.Agent):
-    base_price = 1000
+    base_buying_price = 1000 #grundpreis der Schiffe auf dem der Dynmaische Preis basiert
+    base_selling_price = 750
     def __init__(self, model, owner: "Player" = None):
         super().__init__(model)
-        self.owner = owner
-        self.operating = True
+        self.owner = owner #legt fest zu welchem Spieler das Shiff gehört
+        self.operating = True #legt fest ob das Schiff aktiv oder inaktiv ist
        
-        self.sell_price = 750
-        self.idle_cost = 10
-        self.operating_cost = 30
-        self.catch_rate = 0.01
-        self.max_cargo = 150
-        self.caught_fish_last = 0
-        self.caught_fish_total = 0
+        
+        self.idle_cost = 10 #Betriebskosten
+        self.operating_cost = 30 #Einsatzkosten
+        self.catch_rate = 0.01 #Fangrate
+        self.max_cargo = 150 #Maximal Zuladung
+        self.caught_fish_last = 0 #Zeigt wie viele Fische im letzen Jahr gefangenwurden
+        self.caught_fish_total = 0 #Zeigt wei viel FIsche insgesamt gefange wurden
+        #Speichert die Daten für den Plot
         self.history_total = [self.caught_fish_total]
         self.history_last = [self.caught_fish_last]
 
     def catch(self):
         ocean = self.model.agents.select(agent_type=Ocean)[0]
-        player = self.model.agents.select(agent_type=Player)[0]
         
-        raw_catch = ocean.num_of_fish * self.catch_rate * len(player.fleet)
+        raw_catch = ocean.num_of_fish * self.catch_rate
+        self.caught_fish_last = round(min(raw_catch, self.max_cargo))
         
-        # max_cargo gilt pro Schiff → Gesamtkapazität = max_cargo * Anzahl Schiffe
-        total_cargo = self.max_cargo * len(player.fleet)
-        self.caught_fish_last = round(min(raw_catch, total_cargo))
         self.caught_fish_total += self.caught_fish_last
-        
         ocean.num_of_fish -= self.caught_fish_last
         ocean.num_of_fish = round(ocean.num_of_fish)
-        #player.money = round(player.money - self.operating_cost * len(player.fleet))
         
         self.history_total.append(self.caught_fish_total)
         self.history_last.append(self.caught_fish_last)
@@ -79,30 +76,29 @@ class Player(mesa.Agent):
 
     @property
     def dynamic_buy_price(self):
-        return Ship.base_price + len(self.fleet) * 100
+        return Ship.base_buying_price + len(self.fleet) * 100
     
     @property
     def dynamic_sell_price(self ):
-        return Ship.base_price - len(self.fleet) * 100
+        return Ship.base_selling_price - len(self.fleet) * 100
         
     def buy_ship(self):
-        new_ship = Ship.create_agents(model=self.model, n=1)  
         if self.money < self.dynamic_buy_price:
             print("Not enough money")
         else:
+            new_ship = Ship.create_agents(model=self.model, n=1)
             self.fleet.append(new_ship[0])
             self.money -= self.dynamic_buy_price
     
     def sell_ship(self):
-        ship = self.model.agents.select(agent_type = Ship)[0]
-        
-        if len(self.fleet) == 0 :
-           return False
+        if len(self.fleet) == 0:
+            return False
         else:
-            self.fleet.pop()
-            self.money = self.money + ship.sell_price
+            ship = self.fleet.pop()
+            ship.remove()  # entfernt den Agenten aus model.agents
+            self.money = self.money + self.dynamic_sell_price
             return True
-    
+        
     def sell_fish(self):
         # Fang aller Schiffe in der Flotte summieren
         total_catch = sum(s.caught_fish_last for s in self.fleet)

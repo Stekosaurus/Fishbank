@@ -21,11 +21,11 @@ class Fishbank(mesa.Model):
 
     def step(self):
         self.ocean.do("reproduce")
-        
-        for ship in self.ships:
+        player = self.player[0]  # oder list(self.player)[0]
+        for ship in player.fleet:
             if ship.operating:
                 ship.catch()
             else:
                 ship.idle()
         self.player.do("sell_fish")
-                
+            
