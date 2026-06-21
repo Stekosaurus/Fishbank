@@ -64,7 +64,7 @@ def Page():
     plots = [
     (ocean.history, "Populations-Verlauf", "Anzahl Fische", "blue",   "Fish"),
     (player.history, "Kapital",        "Geld",    "orange", "Geld"),
-    (ship.history_last, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Fish")
+    (player.total_catch_history, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Fish")
     # weitere Plots einfach hier anhängen...
     ]
     solara.Style(".title { text-align: center; font-size: 3rem; font-weight: bold; }")
@@ -90,7 +90,7 @@ def Page():
             solara.Markdown(f"Anzahl Schiffe: {len(player.fleet)}")
             solara.Markdown(f"Boots-Kaufpreis:{player.dynamic_buy_price}")
             solara.Markdown(f"Boots-Verkaufspreis: {player.dynamic_sell_price}")
-            solara.Markdown(f"Gefange Fische: {ship.caught_fish_last}")
+            solara.Markdown(f"Gefange Fische: {player.total_catch}")
 
     
         with solara.Columns([1] * len(plots)):
@@ -116,5 +116,5 @@ def Page():
     #         )
 
     
-print(fishbank.agents)
-print(len(fishbank.agents))
+#print(fishbank.agents)
+print(f"agenten:{len(fishbank.agents)}")

@@ -27,7 +27,7 @@ class Ocean(mesa.Agent):
         self.history.append(self.num_of_fish)#Hängt der aktualisierte Zahl der Fische an die "history" Liste an.
 
 class Ship(mesa.Agent):
-    base_buying_price = 1000 #grundpreis der Schiffe auf dem der Dynmaische Preis basiert
+    base_buying_price = 1000 #grundpreis der Schiffe auf dem der Dynamische Preis basiert
     base_selling_price = 750
     def __init__(self, model, owner: "Player" = None):
         super().__init__(model)
@@ -67,11 +67,14 @@ class Player(mesa.Agent):
     def __init__(self, model, fleet: list[Ship] = None):
         super().__init__(model)
         self.money = 10000
+        self.total_catch = 0
+
         self.fleet = fleet if fleet is not None else []
         self.num_of_ships = len(self.fleet)
         self.price_per_fish = 1
         self.capital = self.money + sum(ship.buy_price for ship in self.fleet)
         self.history = [self.money]
+        self.total_catch_history = [self.total_catch]
         #self.operating_cost = ship.operating_cost
 
     @property
@@ -100,11 +103,15 @@ class Player(mesa.Agent):
             return True
         
     def sell_fish(self):
-        # Fang aller Schiffe in der Flotte summieren
+    # Fang aller Schiffe in der Flotte summieren
         total_catch = sum(s.caught_fish_last for s in self.fleet)
+        self.total_catch = total_catch
         total_operating_cost = sum(s.operating_cost for s in self.fleet)
         self.money += round(self.price_per_fish * total_catch - total_operating_cost)
         self.history.append(self.money)
+        self.total_catch_history.append(total_catch)
+    
+    
 
 
     
