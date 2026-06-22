@@ -62,8 +62,8 @@ def Page():
         player.make_active(val)
         
     plots = [
-    (ocean.history, "Populations-Verlauf", "Anzahl Fische", "blue",   "Fish"),
-    (player.history, "Kapital",        "Geld",    "orange", "Geld"),
+    #(ocean.history, "Populations-Verlauf", "Anzahl Fische", "blue",   "Fish"),
+    (player.capital_history, "Kapital",        "Geld",    "orange", "Geld"),
     (player.total_catch_history, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Fish")
     # weitere Plots einfach hier anhängen...
     ]

@@ -72,7 +72,8 @@ class Player(mesa.Agent):
         self.fleet = fleet if fleet is not None else []
         self.num_of_ships = len(self.fleet)
         self.price_per_fish = 1
-        self.capital = self.money + sum(ship.buy_price for ship in self.fleet)
+        self.capital = 0
+        self.capital_history = [self.capital]
         self.history = [self.money]
         self.total_catch_history = [self.total_catch]
         #self.operating_cost = ship.operating_cost
@@ -108,8 +109,11 @@ class Player(mesa.Agent):
         self.total_catch = total_catch
         total_operating_cost = sum(s.operating_cost for s in self.fleet)
         self.money += round(self.price_per_fish * total_catch - total_operating_cost)
+        capital = self.money + sum(s.base_selling_price for s in self.fleet)
+        self.capital = capital
         self.history.append(self.money)
         self.total_catch_history.append(total_catch)
+        self.capital_history.append(capital)
     
     
 
