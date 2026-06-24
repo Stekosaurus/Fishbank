@@ -116,7 +116,12 @@ class Player(mesa.Agent):
         self.capital_history.append(capital)
     
     
+class Opponent(Player):
 
+    def excecute(self):
+        if self.money > 5000:
+            self.buy_ship
+        
 
     
 print("agent run succesfull")
