@@ -7,10 +7,14 @@ fishbank = Fishbank(1)
 ocean  = next(a for a in fishbank.agents if isinstance(a, Ocean))
 player = next(a for a in fishbank.agents if isinstance(a, Player))
 ship   = next(a for a in fishbank.agents if isinstance(a, Ship))
+opponent = next(a for a in fishbank.agents if isinstance(a, Opponent))
 clicks = solara.reactive(0)
 active_ships = solara.reactive(0)
 
-def make_line_plot(history, title, y_label, color="red", name=None):
+def make_line_plot(history, title, y_label, color="red", name=None, extra=None):
+    """
+    extra: optionales (history2, name2, color2)-Tupel für eine zweite Linie
+    """
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=list(range(len(history))),
@@ -19,6 +23,15 @@ def make_line_plot(history, title, y_label, color="red", name=None):
         name=name or title,
         line=dict(color=color, width=2),
     ))
+    if extra:
+        history2, name2, color2 = extra
+        fig.add_trace(go.Scatter(
+            x=list(range(len(history2))),
+            y=history2,
+            mode='lines',
+            name=name2,
+            line=dict(color=color2, width=2),
+        ))
     fig.update_layout(
         title=title,
         xaxis_title="Schritt",
@@ -39,6 +52,7 @@ def Page():
         ocean  = next(a for a in fishbank.agents if isinstance(a, Ocean))
         player = next(a for a in fishbank.agents if isinstance(a, Player))
         ship   = next(a for a in fishbank.agents if isinstance(a, Ship))
+        opponent = next(a for a in fishbank.agents if isinstance(a, Opponent))
         clicks.value = 0
         
     def one_step():
@@ -62,13 +76,12 @@ def Page():
         player.make_active(val)
         
     plots = [
-    #(ocean.history, "Populations-Verlauf", "Anzahl Fische", "blue",   "Fish"),
-    (player.capital_history, "Kapital",        "Geld",    "orange", "Geld"),
-    (player.total_catch_history, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Fish")
-    # weitere Plots einfach hier anhängen...
-    ]
-    solara.Style(".title { text-align: center; font-size: 3rem; font-weight: bold; }")
-    solara.Markdown("<h1 class='title'>Catch The Fish!</h1>")
+    (ocean.history, "Ozean", "Population", "blue", "Fische", None),
+    (player.capital_history, "Kapital", "Geld", "orange", "Geld",
+        (opponent.capital_history, "Opponent", "red")),
+    (player.total_catch_history, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Spieler",
+        (opponent.total_catch_history, "Opponent", "red")),
+]
     
     with solara.Row():
         
@@ -85,18 +98,25 @@ def Page():
 
         with solara.Card("Monitor"):
             #solara.Markdown(f"Fische im Ozean:{ocean.num_of_fish}")
-            solara.Markdown(f"Geld:{player.money}")
-            solara.Markdown(f"Kapital:{player.capital}")
-            solara.Markdown(f"Anzahl Schiffe: {len(player.fleet)}")
+            solara.Markdown(f"Spieler Geld:{player.money}")
+            solara.Markdown(f"Gegner Geld:{opponent.money}")
+            solara.Markdown(f"Spieler Kapital:{player.capital}")
+            solara.Markdown(f"Gegner Kapital:{opponent.capital}")
+            solara.Markdown(f"Spieler  Schiffe: {len(player.fleet)}")
+            solara.Markdown(f"Gegner Schiffe: {len(opponent.fleet)}")
             solara.Markdown(f"Boots-Kaufpreis:{player.dynamic_buy_price}")
             solara.Markdown(f"Boots-Verkaufspreis: {player.dynamic_sell_price}")
-            solara.Markdown(f"Gefange Fische: {player.total_catch}")
+            solara.Markdown(f"Spieler Gefangene Fische: {player.total_catch}")
+            solara.Markdown(f"Gegner Gefangene Fische: {opponent.total_catch}")
 
     
         with solara.Columns([1] * len(plots)):
-            for history, title, ylabel, color, legend in plots:
+            for history, title, ylabel, color, legend, extra in plots:
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(y=history, line=dict(color=color), name=legend))
+                if extra:
+                    history2, name2, color2 = extra
+                    fig.add_trace(go.Scatter(y=history2, line=dict(color=color2), name=name2))
                 fig.update_layout(
                     title=title,
                     yaxis_title=ylabel,
