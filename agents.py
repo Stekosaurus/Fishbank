@@ -14,7 +14,9 @@ class Ocean(mesa.Agent):
         self.num_of_fish = 10000 #Anzahl der Fische zu beginn des Modells
         self.capacity = 15000 #Natürliche Kapzität des Ozeans
         self.r_rate = 0.1 #Reproduktionsrate der Fische
+        self.ocean_fleet = [] #managed wie viele Schiffe sich aktuell im Ocean befinden(Wichtig für ein faires Angel verhalte für alles Spieler)
         self.history = [self.num_of_fish] #Liste mit dem Verlauf der der Anzahl der Fische. Wichtig für das Zeichnen des Graphen
+        
         
 
     def reproduce(self):
@@ -117,11 +119,24 @@ class Player(mesa.Agent):
     
     
 class Opponent(Player):
-
-    def excecute(self):
-        if self.money > 5000:
-            self.buy_ship
+    def __init__(self, model, fleet=None):
+        super().__init__(model, fleet)
+        self.buy_threshold = 10000
+        self.sell_threshold = 75
+    def execute(self):
+        print(f"[DEBUG] execute called, money={self.money}, type={type(self).__name__}")
         
+        if self.money >= self.buy_threshold:
+            print("[DEBUG] buying ship!")
+            self.buy_ship()
+            self.buy_threshold += 250
+        else:
+            print("[DEBUG] not enough money")
+
+        # Verkaufsprüfung unabhängig vom Kauf, NACHDEM die Schiffe schon mal gefischt haben
+        if self.fleet and any(s.caught_fish_last < 75 for s in self.fleet[:-1]):
+            self.sell_ship()
+            self.sell_threshold -=15
 
     
 print("agent run succesfull")
