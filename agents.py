@@ -14,7 +14,7 @@ class Ocean(mesa.Agent):
         self.num_of_fish = 10000 #Anzahl der Fische zu beginn des Modells
         self.capacity = 15000 #Natürliche Kapzität des Ozeans
         self.r_rate = 0.1 #Reproduktionsrate der Fische
-        self.ocean_fleet = [] #managed wie viele Schiffe sich aktuell im Ocean befinden(Wichtig für ein faires Angel verhalte für alles Spieler)
+        self.fleet = [] #managed wie viele Schiffe sich aktuell im Ocean befinden(Wichtig für ein faires Angel verhalte für alles Spieler)
         self.history = [self.num_of_fish] #Liste mit dem Verlauf der der Anzahl der Fische. Wichtig für das Zeichnen des Graphen
         
         
@@ -57,8 +57,9 @@ class Ship(mesa.Agent):
         ocean.num_of_fish -= self.caught_fish_last
         ocean.num_of_fish = round(ocean.num_of_fish)
         
-        self.history_total.append(self.caught_fish_total)
-        self.history_last.append(self.caught_fish_last)
+        #self.history_total.append(self.caught_fish_total)
+        #self.history_last.append(self.caught_fish_last)
+
     def idle(self) :
         player = self.model.agents.select(agent_type=Player)[0]
         player.money = round(player.money - self.idle_cost)

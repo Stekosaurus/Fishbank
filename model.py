@@ -1,6 +1,6 @@
 import mesa
 from agents import *
-
+import random as rd
 import solara
 import plotly.express as px
 import plotly.graph_objects as go
@@ -20,23 +20,45 @@ class Fishbank(mesa.Model):
         
         #self.player[0].fleet.append(list(self.ships)[0])#Fügt ein Schiff der Flotte(fleet) des Spielers hinzu.
         #self.opponent[0].fleet.append
+    def catch_together(self, player, opponent):
+        ocean = self.ocean[0]  # unwrap the AgentSet to get the actual Ocean agent
+
+        player_count = len(player.fleet)
+        opponent_count = len(opponent.fleet)
+
+        # merge both fleets into the ocean
+        ocean.fleet.extend(opponent.fleet)
+        ocean.fleet.extend(player.fleet)
+
+        # clear the original fleets since ships now live in ocean.fleet
+        player.fleet = []
+        opponent.fleet = []
+
+        # shuffle once
+        rd.shuffle(ocean.fleet)
+        
+        for ship in ocean.fleet:
+                ship.catch()
+        for i in range(opponent_count):
+            a = ocean.fleet.pop()
+            opponent.fleet.append(a)
+        # deal back to player
+        for i in range(player_count):
+            a = ocean.fleet.pop()
+            player.fleet.append(a)
+
+        # deal back to opponent
+       
+
+             
+    
     def step(self):
         self.ocean.do("reproduce")
         player = self.player[0]  
         opponent = self.opponent[0]
         self.opponent.do("execute")
-        for ship in opponent.fleet:
-            if ship.operating:
-                ship.catch()
-            else:
-                ship.idle()
-        for ship in player.fleet:
-            if ship.operating:
-                ship.catch()
-            else:
-                ship.idle()
-        
-        #self
+        self.catch_together(player,opponent)
+    
         self.player.do("sell_fish")
         self.opponent.do("sell_fish")
             
