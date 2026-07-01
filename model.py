@@ -21,37 +21,26 @@ class Fishbank(mesa.Model):
         #self.player[0].fleet.append(list(self.ships)[0])#Fügt ein Schiff der Flotte(fleet) des Spielers hinzu.
         #self.opponent[0].fleet.append
     def catch_together(self, player, opponent):
-        ocean = self.ocean[0]  # unwrap the AgentSet to get the actual Ocean agent
-
+        ocean = self.ocean[0]
         player_count = len(player.fleet)
         opponent_count = len(opponent.fleet)
 
-        # merge both fleets into the ocean
         ocean.fleet.extend(opponent.fleet)
         ocean.fleet.extend(player.fleet)
-
-        # clear the original fleets since ships now live in ocean.fleet
         player.fleet = []
         opponent.fleet = []
 
-        # shuffle once
         rd.shuffle(ocean.fleet)
-        
         for ship in ocean.fleet:
-                ship.catch()
-        for i in range(opponent_count):
-            a = ocean.fleet.pop()
-            opponent.fleet.append(a)
-        # deal back to player
-        for i in range(player_count):
-            a = ocean.fleet.pop()
-            player.fleet.append(a)
+            ship.catch()
 
-        # deal back to opponent
-       
-
-             
-    
+        receivers = [(player, player_count), (opponent, opponent_count)]
+        rd.shuffle(receivers)
+        for agent, count in receivers:
+            for i in range(count):
+                a = ocean.fleet.pop()
+                agent.fleet.append(a)
+        
     def step(self):
         self.ocean.do("reproduce")
         player = self.player[0]  
