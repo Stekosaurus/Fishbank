@@ -47,7 +47,7 @@ def Page():
 
 
     def reset():
-        global fishbank, ocean, player, ship
+        global fishbank, ocean, player, ship, opponent
         fishbank = Fishbank(1)
         ocean  = next(a for a in fishbank.agents if isinstance(a, Ocean))
         player = next(a for a in fishbank.agents if isinstance(a, Player))
