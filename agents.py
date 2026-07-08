@@ -90,6 +90,7 @@ class Player(mesa.Agent):
         return Ship.base_selling_price - len(self.fleet) * 100
         
     def buy_ship(self):
+        print("buyship")
         if self.money < self.dynamic_buy_price:
             print("Not enough money")
         else:
@@ -123,12 +124,11 @@ class Opponent(Player):
     def __init__(self, model, fleet=None):
         super().__init__(model, fleet)
         self.buy_threshold = 10000
-        self.sell_threshold = 75
-    def execute(self):
-        print(f"[DEBUG] execute called, money={self.money}, type={type(self).__name__}")
+        self.sell_threshold = 50
+    def normal(self):
+       
         
         if self.money >= self.buy_threshold:
-            print("[DEBUG] buying ship!")
             self.buy_ship()
             self.buy_threshold += 250
         else:
@@ -136,8 +136,22 @@ class Opponent(Player):
 
         # Verkaufsprüfung unabhängig vom Kauf, NACHDEM die Schiffe schon mal gefischt haben
         if self.fleet and any(s.caught_fish_last < 75 for s in self.fleet[:-1]):
-            self.sell_ship()
-            self.sell_threshold -=15
+           self.sell_ship()
+        self.sell_threshold +=15
+
+    def copy_cat(self, player):
+        print("copycat")
+        print("player ships",len(player.fleet))
+        if len(player.fleet) >= self.num_of_ships:
+            diff = len(player.fleet) - len(self.fleet)
+            print(diff)
+            for i in range(diff):
+                print("opponent_buyship")
+                self.buy_ship()
+        else:
+            diff = len(self.fleet) - len(player.fleet)
+            for i in range(diff):
+                self.sell_ship()
 
     
 print("agent run succesfull")

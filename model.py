@@ -45,7 +45,7 @@ class Fishbank(mesa.Model):
         self.ocean.do("reproduce")
         player = self.player[0]  
         opponent = self.opponent[0]
-        self.opponent.do("execute")
+        self.opponent.do("copy_cat", player)
         self.catch_together(player,opponent)
     
         self.player.do("sell_fish")
