@@ -146,7 +146,7 @@ class Opponent(Player):
             diff = len(player.fleet) - len(self.fleet)
             print(diff)
             for i in range(diff):
-                print("opponent_buyship")
+                #print("opponent_buyship")
                 self.buy_ship()
         else:
             diff = len(self.fleet) - len(player.fleet)
