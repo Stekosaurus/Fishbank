@@ -123,21 +123,62 @@ class Player(mesa.Agent):
 class Opponent(Player):
     def __init__(self, model, fleet=None):
         super().__init__(model, fleet)
-        self.buy_threshold = 10000
-        self.sell_threshold = 50
-    def normal(self):
+        self.bt_money = 10000
+        self.st_money = 9000
+        self.bt_catch = 0
+        self.st_fish = 50
+    
+    def money_oriented_one(self):
        
         
-        if self.money >= self.buy_threshold:
+        if self.money >= self.bt_money:
             self.buy_ship()
-            self.buy_threshold += 250
+            self.bt_money += 250
         else:
             print("[DEBUG] not enough money")
 
         # Verkaufsprüfung unabhängig vom Kauf, NACHDEM die Schiffe schon mal gefischt haben
         if self.fleet and any(s.caught_fish_last < 75 for s in self.fleet[:-1]):
            self.sell_ship()
-        self.sell_threshold +=15
+        self.st_fish +=15
+
+    def money_oriented_two(self):
+    
+    
+        if self.money >= self.bt_money:
+            self.buy_ship()
+            self.bt_money += 100
+        else:
+            print("[DEBUG] not enough money")
+
+        # Verkaufsprüfung unabhängig vom Kauf, NACHDEM die Schiffe schon mal gefischt haben
+        if self.fleet and any(s.caught_fish_last < 75 for s in self.fleet[:-1]):
+            self.sell_ship()
+        self.st_fish +=10
+    
+    def money_oriented_three(self):
+    
+    
+        if self.money >= self.bt_money:
+            self.buy_ship()
+            self.bt_money += 300
+        else:
+            print("[DEBUG] not enough money")
+
+        # Verkaufsprüfung unabhängig vom Kauf, NACHDEM die Schiffe schon mal gefischt haben
+        if self.fleet and any(s.caught_fish_last < 75 for s in self.fleet[:-1]):
+            self.sell_ship()
+        self.st_fish +=30
+        
+    def fish_oriented(self, ship):
+        if not self.fleet or any(s.caught_fish_last <= self.bt_fish for s in self.fleet[:-1]):
+            self.buy_ship()
+            self.bt_fish += 15
+        if self.fleet and any(s.caught_fish_last < self.st_fish for s in self.fleet[:-1]):
+            self.sell_ship()
+            self.st_fish -= 10
+            
+
 
     def copy_cat(self, player):
         print("copycat")
