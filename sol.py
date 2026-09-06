@@ -57,7 +57,7 @@ def Page():
 
     plots = [
         (ocean.history, "Ozean", "Population", "blue", "Fische", []),
-        (player.capital_history, "Kapital", "Geld", "orange", "Geld",
+        (player.capital_history, "Kapital", "Geld", "green", "Spieler",
             opponent_tuples("capital_history")),
         (player.total_catch_history, "Gefangene Fische im Letzten Jahr", "Fische", "green", "Spieler",
             opponent_tuples("total_catch_history")),

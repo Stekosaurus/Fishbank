@@ -83,16 +83,25 @@ class Player(mesa.Agent):
 
     @property
     def dynamic_buy_price(self):
-        return Ship.base_buying_price + len(self.fleet) * 100
+        total_ships = sum(
+            len(agent.fleet)
+            for agent in self.model.agents
+            if isinstance(agent, (Player, Opponent))
+        )
+        return Ship.base_buying_price + total_ships * 50  # oder deine ursprüngliche Formel
     
     @property
-    def dynamic_sell_price(self ):
-        return Ship.base_selling_price - len(self.fleet) * 100
-        
+    def dynamic_sell_price(self):
+        total_ships = sum(
+            len(agent.fleet)
+            for agent in self.model.agents
+            if isinstance(agent, (Player, Opponent))
+        )
+        return Ship.base_buying_price - total_ships * 50  # oder deine ursprüngliche Formel
     def buy_ship(self):
         print("buyship")
         if self.money < self.dynamic_buy_price:
-            print("Not enough money")
+            print()
         else:
             new_ship = Ship.create_agents(model=self.model, n=1)
             self.fleet.append(new_ship[0])
@@ -125,7 +134,7 @@ class Opponent(Player):
         super().__init__(model, fleet)
         self.bt_money = 10000
         self.st_money = 9000
-        self.bt_catch = 0
+        self.bt_fish = 10
         self.st_fish = 50
     
     def money_oriented_one(self):
@@ -170,14 +179,17 @@ class Opponent(Player):
             self.sell_ship()
         self.st_fish +=30
         
-    def fish_oriented(self, ship):
-        if not self.fleet or any(s.caught_fish_last <= self.bt_fish for s in self.fleet[:-1]):
+    def fish_oriented(self):
+        if not self.fleet:
             self.buy_ship()
             self.bt_fish += 15
-        if self.fleet and any(s.caught_fish_last < self.st_fish for s in self.fleet[:-1]):
+        if  self.fleet or any(s.caught_fish_last <= self.bt_fish for s in self.fleet):
+            self.buy_ship()
+            self.bt_fish += 500
+        if self.fleet and any(s.caught_fish_last < self.st_fish for s in self.fleet):
             self.sell_ship()
             self.st_fish -= 10
-            
+                
 
 
     def copy_cat(self, player):

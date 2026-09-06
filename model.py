@@ -14,7 +14,7 @@ class Fishbank(mesa.Model):
         super().__init__(seed=seed)
         self.ocean = Ocean.create_agents(model=self, n=1) #Initialisiert einen Ozean mit Fischen
         self.player = Player.create_agents (model=self, n=1) # Initialisiert die gewünschte anzahl Spieler(Aktuell nur 1).
-        self.opponent = Opponent.create_agents (model = self, n =3)
+        self.opponent = Opponent.create_agents (model = self, n =0)
         self.ships = Ship.create_agents(model=self, n=1)#Initialisiert ein Schiff.
         #Initialisieren bedeuted das quasi aus der Vorlage der Klasse einzelne Objekte, Objekte mit denen Gearbeitet werden kann erstellt werden.
         
@@ -47,9 +47,9 @@ class Fishbank(mesa.Model):
         opponents = list(self.opponent)
 
         if len(opponents) >= 1:
-            opponents[0].money_oriented_one()     # direkter Methodenaufruf statt .do()
+            opponents[0].money_oriented_three()     # direkter Methodenaufruf statt .do()
         if len(opponents) >= 2:
-            opponents[1].money_oriented_two()
+            opponents[1].fish_oriented()
         if len(opponents) >= 3:
             opponents[2].money_oriented_three()
 
