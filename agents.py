@@ -11,8 +11,8 @@ class Ocean(mesa.Agent):
     """
     def __init__(self, model):
         super().__init__(model)
-        self.num_of_fish = 10000 #Anzahl der Fische zu beginn des Modells
-        self.capacity = 15000 #Natürliche Kapzität des Ozeans
+        self.num_of_fish = 100000 #Anzahl der Fische zu beginn des Modells
+        self.capacity = 150000 #Natürliche Kapzität des Ozeans
         self.r_rate = 0.1 #Reproduktionsrate der Fische
         self.fleet = [] #managed wie viele Schiffe sich aktuell im Ocean befinden(Wichtig für ein faires Angel verhalte für alles Spieler)
         self.history = [self.num_of_fish] #Liste mit dem Verlauf der der Anzahl der Fische. Wichtig für das Zeichnen des Graphen
@@ -88,7 +88,7 @@ class Player(mesa.Agent):
             for agent in self.model.agents
             if isinstance(agent, (Player, Opponent))
         )
-        return Ship.base_buying_price + total_ships * 50  # oder deine ursprüngliche Formel
+        return Ship.base_buying_price + total_ships * 50  
     
     @property
     def dynamic_sell_price(self):
@@ -97,7 +97,8 @@ class Player(mesa.Agent):
             for agent in self.model.agents
             if isinstance(agent, (Player, Opponent))
         )
-        return Ship.base_buying_price - total_ships * 50  # oder deine ursprüngliche Formel
+        return Ship.base_buying_price - total_ships * 50  
+    
     def buy_ship(self):
         print("buyship")
         if self.money < self.dynamic_buy_price:
@@ -136,6 +137,26 @@ class Opponent(Player):
         self.st_money = 9000
         self.bt_fish = 10
         self.st_fish = 50
+
+    def ship_oriented(self):
+        # Ziel: Dieser Gegner soll immer genau ein Schiff mehr haben
+        # als der Agent mit den meisten Schiffen (ohne sich selbst).
+        others = [a for a in self.model.agents if isinstance(a, (Player, Opponent)) and a is not self]
+        max_ships = max((len(a.fleet) for a in others), default=0)
+        target = max_ships + 1
+
+        # Kaufe so lange nach, bis Ziel erreicht oder kein Geld mehr vorhanden ist
+        while len(self.fleet) < target:
+            # buy_ship prüft intern, ob genug Geld vorhanden ist
+            prev_ships = len(self.fleet)
+            self.buy_ship()
+            # Wenn kein Schiff gekauft werden konnte (kein Geld), dann abbrechen
+            if len(self.fleet) == prev_ships:
+                break
+
+        # Falls zu viele Schiffe vorhanden sind, verkaufe bis Ziel erreicht
+        while len(self.fleet) > target:
+            self.sell_ship()
     
     def money_oriented_one(self):
        
@@ -179,7 +200,7 @@ class Opponent(Player):
             self.sell_ship()
         self.st_fish +=30
         
-    def fish_oriented(self):
+    def fish_oriented(self): #kauft/verkauft schiffe in Abhaengigkeit der der gefangenen Fische
         if not self.fleet:
             self.buy_ship()
             self.bt_fish += 15

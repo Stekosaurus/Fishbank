@@ -44,6 +44,10 @@ def Page():
         for _ in range(10):
             one_step()
 
+    def hundred_steps():
+            for _ in range(100):
+                one_step()
+
     def on_sell_click():
         success = player.sell_ship()
         if not success:
@@ -63,11 +67,16 @@ def Page():
             opponent_tuples("total_catch_history")),
     ]
 
+    # Spiel-Titel oben drüber (groß und zentriert)
+    with solara.Row(style={"justify-content": "center", "margin-bottom": "10px"}):
+        solara.Markdown("<h1 style='margin:0; text-align:center; font-size:48px;'>HerASim: Fishbank</h1>")
+
     with solara.Row():
 
         with solara.Column(style={"align-items": "start"}):
             solara.Button(label=f"Jahr {clicks.value}", on_click=one_step)
             solara.Button(label=f"10 Schritte", on_click=ten_steps)
+            solara.Button(label=f"100 Schritte", on_click=hundred_steps)
             solara.Button(label="Boot Kaufen", on_click=player.buy_ship)
             solara.Button(label="Boot Verkaufen", on_click=on_sell_click)
             if show_warning:
